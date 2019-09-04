@@ -363,6 +363,7 @@ class RawCode:
         print('    .kind = MP_CODE_BYTECODE,')
         print('    .scope_flags = 0x%02x,' % self.prelude[2])
         print('    .n_pos_args = %u,' % self.prelude[3])
+        print('    .line_of_definition = %u,' % 0) # TODO
         print('    .data.u_byte = {')
         print('        .bytecode = bytecode_data_%s,' % self.escaped_name)
         if const_table_len:
@@ -387,7 +388,6 @@ class RawCode:
         print('        .locals = bytecode_data_%s + %u,' % (self.escaped_name, 0)) # TODO
         print('        .bytecode = bytecode_data_%s + %u,' % (self.escaped_name, self.ip))
         print('    },')
-#        print('    .line_of_definition = %u,' % 0) # TODO
         print('    #endif')
         print('        #endif')
         print('    },')
