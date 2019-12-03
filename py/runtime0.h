@@ -58,6 +58,7 @@ typedef enum {
     MP_UNARY_OP_HASH, // __hash__; must return a small int
     MP_UNARY_OP_ABS, // __abs__
     MP_UNARY_OP_SIZEOF, // for sys.getsizeof()
+    MP_UNARY_OP_GET_CELLS, // for sys.getcells()
 
     MP_UNARY_OP_NUM_RUNTIME,
 } mp_unary_op_t;

@@ -295,6 +295,25 @@ const byte *find_subbytes(const byte *haystack, size_t hlen, const byte *needle,
     return NULL;
 }
 
+STATIC mp_obj_t mp_obj_str_unary_op(mp_unary_op_t op, mp_obj_t self_in) {
+    switch (op) {
+      #if MICROPY_PY_SYS_GETSIZEOF
+      case MP_UNARY_OP_SIZEOF: {
+          size_t sz = 0;
+          if (MP_OBJ_IS_QSTR(self_in)) {
+            sz = sizeof(mp_const_obj_t);
+          } else {
+            mp_obj_str_t* self = (mp_obj_str_t*)MP_OBJ_TO_PTR(self_in);
+            sz = sizeof(*self) + self->len;
+          }
+          return MP_OBJ_NEW_SMALL_INT(sz);
+      }
+      #endif
+      default:
+      return MP_OBJ_NULL; // op not supported
+    }
+}
+
 // Note: this function is used to check if an object is a str or bytes, which
 // works because both those types use it as their binary_op method.  Revisit
 // MP_OBJ_IS_STR_OR_BYTES if this fact changes.
@@ -1964,6 +1983,7 @@ const mp_obj_type_t mp_type_str = {
     .name = MP_QSTR_str,
     .print = str_print,
     .make_new = mp_obj_str_make_new,
+    .unary_op = mp_obj_str_unary_op,
     .binary_op = mp_obj_str_binary_op,
     .subscr = bytes_subscr,
     .getiter = mp_obj_new_str_iterator,
@@ -1978,6 +1998,7 @@ const mp_obj_type_t mp_type_bytes = {
     .name = MP_QSTR_bytes,
     .print = str_print,
     .make_new = bytes_make_new,
+    .unary_op = mp_obj_str_unary_op,
     .binary_op = mp_obj_str_binary_op,
     .subscr = bytes_subscr,
     .getiter = mp_obj_new_bytes_iterator,

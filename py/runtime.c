@@ -246,6 +246,11 @@ mp_obj_t mp_unary_op(mp_unary_op_t op, mp_obj_t arg) {
                 } else {
                     return MP_OBJ_NEW_SMALL_INT(-val);
                 }
+            #if MICROPY_PY_SYS_GETSIZEOF
+            case MP_UNARY_OP_SIZEOF: {
+              return MP_OBJ_NEW_SMALL_INT(sizeof(mp_const_obj_t));
+            }
+            #endif
             default:
                 assert(op == MP_UNARY_OP_INVERT);
                 return MP_OBJ_NEW_SMALL_INT(~val);

@@ -55,11 +55,31 @@ STATIC void cell_print(const mp_print_t *print, mp_obj_t o_in, mp_print_kind_t k
 }
 #endif
 
+#if MICROPY_PY_SYS_GETSIZEOF
+STATIC mp_obj_t cell_unary_op(mp_unary_op_t op, mp_obj_t o_in) {
+    switch (op) {
+        case MP_UNARY_OP_SIZEOF: {
+            mp_obj_cell_t *self = MP_OBJ_TO_PTR(o_in);
+            const size_t sz = sizeof(*self) + sizeof(mp_obj_t);
+            return MP_OBJ_NEW_SMALL_INT(sz);
+        }
+        case MP_UNARY_OP_GET_CELLS: {
+            mp_obj_cell_t *self = MP_OBJ_TO_PTR(o_in);
+            return self->obj;
+        }
+        default: return MP_OBJ_NULL; // op not supported
+    }
+}
+#endif
+
 STATIC const mp_obj_type_t mp_type_cell = {
     { &mp_type_type },
     .name = MP_QSTR_, // cell representation is just value in < >
 #if MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_DETAILED
     .print = cell_print,
+#endif
+#if MICROPY_PY_SYS_GETSIZEOF
+    .unary_op = cell_unary_op,
 #endif
 };
 

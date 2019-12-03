@@ -145,6 +145,11 @@ STATIC mp_obj_t mp_sys_getsizeof(mp_obj_t obj) {
     return mp_unary_op(MP_UNARY_OP_SIZEOF, obj);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_sys_getsizeof_obj, mp_sys_getsizeof);
+
+STATIC mp_obj_t mp_sys_getcells(mp_obj_t obj) {
+    return mp_unary_op(MP_UNARY_OP_GET_CELLS, obj);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(mp_sys_getcells_obj, mp_sys_getcells);
 #endif
 
 STATIC const mp_rom_map_elem_t mp_module_sys_globals_table[] = {
@@ -195,6 +200,7 @@ STATIC const mp_rom_map_elem_t mp_module_sys_globals_table[] = {
     #endif
     #if MICROPY_PY_SYS_GETSIZEOF
     { MP_ROM_QSTR(MP_QSTR_getsizeof), MP_ROM_PTR(&mp_sys_getsizeof_obj) },
+    { MP_ROM_QSTR(MP_QSTR_getcells), MP_ROM_PTR(&mp_sys_getcells_obj) },
     #endif
 
     /*

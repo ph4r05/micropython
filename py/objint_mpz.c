@@ -156,6 +156,12 @@ mp_obj_t mp_obj_int_unary_op(mp_unary_op_t op, mp_obj_t o_in) {
             mpz_abs_inpl(&self2->mpz, &self->mpz);
             return MP_OBJ_FROM_PTR(self2);
         }
+        #if MICROPY_PY_SYS_GETSIZEOF
+        case MP_UNARY_OP_SIZEOF: {
+          size_t sz = sizeof(*o) + o->mpz.alloc * sizeof(mpz_dig_t);
+          return MP_OBJ_NEW_SMALL_INT(sz);
+        }
+        #endif
         default: return MP_OBJ_NULL; // op not supported
     }
 }

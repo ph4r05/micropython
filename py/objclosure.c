@@ -78,6 +78,34 @@ STATIC void closure_print(const mp_print_t *print, mp_obj_t o_in, mp_print_kind_
 }
 #endif
 
+#if MICROPY_PY_SYS_GETSIZEOF
+STATIC mp_obj_t closure_unary_op(mp_unary_op_t op, mp_obj_t o_in) {
+    switch (op) {
+        case MP_UNARY_OP_SIZEOF: {
+            mp_obj_closure_t *self = MP_OBJ_TO_PTR(o_in);
+            size_t sz = sizeof(*self) + sizeof(mp_obj_t*) * self->n_closed * 2; // * 2 as closure contains another obj ref
+            return MP_OBJ_NEW_SMALL_INT(sz);
+        }
+        case MP_UNARY_OP_GET_CELLS: {
+            mp_obj_closure_t *self = MP_OBJ_TO_PTR(o_in);
+            mp_obj_tuple_t *tuple = MP_OBJ_TO_PTR(mp_obj_new_tuple(self->n_closed, NULL));
+
+            for(size_t i = 0; i < self->n_closed; ++i){
+              mp_obj_type_t *type = mp_obj_get_type(self->closed[i]);
+              if (type->unary_op == NULL)
+                continue;
+
+              mp_obj_t result = type->unary_op(op, self->closed[i]);
+              tuple->items[i] = result != MP_OBJ_NULL ? result : mp_const_none;
+            }
+
+            return MP_OBJ_FROM_PTR(tuple);
+        }
+        default: return MP_OBJ_NULL; // op not supported
+    }
+}
+#endif
+
 const mp_obj_type_t closure_type = {
     { &mp_type_type },
     .name = MP_QSTR_closure,
@@ -85,6 +113,9 @@ const mp_obj_type_t closure_type = {
     .print = closure_print,
 #endif
     .call = closure_call,
+#if MICROPY_PY_SYS_GETSIZEOF
+    .unary_op = closure_unary_op,
+#endif
 };
 
 mp_obj_t mp_obj_new_closure(mp_obj_t fun, size_t n_closed_over, const mp_obj_t *closed) {
@@ -95,3 +126,4 @@ mp_obj_t mp_obj_new_closure(mp_obj_t fun, size_t n_closed_over, const mp_obj_t *
     memcpy(o->closed, closed, n_closed_over * sizeof(mp_obj_t));
     return MP_OBJ_FROM_PTR(o);
 }
+

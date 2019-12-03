@@ -234,6 +234,18 @@ STATIC mp_obj_t array_unary_op(mp_unary_op_t op, mp_obj_t o_in) {
     switch (op) {
         case MP_UNARY_OP_BOOL: return mp_obj_new_bool(o->len != 0);
         case MP_UNARY_OP_LEN: return MP_OBJ_NEW_SMALL_INT(o->len);
+        #if MICROPY_PY_SYS_GETSIZEOF
+        case MP_UNARY_OP_SIZEOF: {
+            int typecode_size = mp_binary_get_size('@', o->typecode, NULL);
+            #if MICROPY_PY_BUILTINS_MEMORYVIEW
+            if (o->base.type == &mp_type_memoryview) {
+                typecode_size = 0;  // no own memory
+            }
+            #endif
+            const size_t sz = sizeof(*o) + typecode_size * o->len;
+            return MP_OBJ_NEW_SMALL_INT(sz);
+        }
+        #endif
         default: return MP_OBJ_NULL; // op not supported
     }
 }

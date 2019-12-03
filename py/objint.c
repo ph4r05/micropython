@@ -313,7 +313,21 @@ int mp_obj_int_sign(mp_obj_t self_in) {
 
 // This is called for operations on SMALL_INT that are not handled by mp_unary_op
 mp_obj_t mp_obj_int_unary_op(mp_unary_op_t op, mp_obj_t o_in) {
-    return MP_OBJ_NULL; // op not supported
+  switch (op) {
+    #if MICROPY_PY_SYS_GETSIZEOF
+    case MP_UNARY_OP_SIZEOF: {
+      size_t sz = 0;
+      if (arg == mp_const_false || arg == mp_const_true || MP_OBJ_IS_SMALL_INT(arg)) {
+        sz = sizeof(mp_const_obj_t);
+      } else {
+        mp_raise_TypeError("Unsupported");
+      }
+      return MP_OBJ_NEW_SMALL_INT(sz);
+    }
+    #endif
+    default:
+      return MP_OBJ_NULL; // op not supported
+  }
 }
 
 // This is called for operations on SMALL_INT that are not handled by mp_binary_op
